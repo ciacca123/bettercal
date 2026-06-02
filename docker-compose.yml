@@ -26,7 +26,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/bettercal
       SEED_DEMO: "true"
     ports:
-      - "3000:3000"
+      - "3001:3000"
     mem_limit: 1g
 
 volumes:
