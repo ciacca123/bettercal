@@ -9,32 +9,25 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bettercal -d bettercal"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bettercal"]
       interval: 5s
       timeout: 5s
       retries: 10
     mem_limit: 1g
-    # On the Synology, pin the arch:  platform: linux/arm64
 
   app:
-    build: .
-    image: bettercal:latest
+    # Immagine ARM64 pubblicata da GitHub Actions su GHCR
+    image: ghcr.io/ciacca123/bettercal:latest
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/bettercal
-      # Seed the demo host on first boot; set to "false" for a clean prod install.
       SEED_DEMO: "true"
     ports:
-      - "8080:3000"
+      - "3000:3000"
     mem_limit: 1g
-    # On the Synology, run a prebuilt arm64 image instead of building on-device:
-    #   1) build here:  docker buildx build --platform linux/arm64 -t bettercal:latest --load .
-    #   2) docker save bettercal:latest | gzip > bettercal-arm64.tar.gz   (upload to NAS)
-    #   3) on NAS:  docker load < bettercal-arm64.tar.gz   then comment out `build:` above.
-    # platform: linux/arm64
 
 volumes:
   pgdata:
