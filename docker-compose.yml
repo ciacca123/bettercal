@@ -28,7 +28,7 @@ services:
       # Seed the demo host on first boot; set to "false" for a clean prod install.
       SEED_DEMO: "true"
     ports:
-      - "3000:3000"
+      - "8080:3000"
     mem_limit: 1g
     # On the Synology, run a prebuilt arm64 image instead of building on-device:
     #   1) build here:  docker buildx build --platform linux/arm64 -t bettercal:latest --load .

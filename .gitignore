@@ -47,3 +47,4 @@ debug-test.js
 
 # Drizzle (migrations ARE committed for prod)
 # src/db/migrations/
+bettercal-arm64.tar.gz
