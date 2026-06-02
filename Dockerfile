@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Multi-stage build. Build OFF the NAS (the Cortex-A53 is too slow) and target
-# arm64 via buildx:  docker buildx build --platform linux/arm64 -t bettercal:arm64 .
+# arm64 via buildx:  docker buildx build --platform linux/arm64 -t bettercal:latest .
 
 FROM node:20-alpine AS deps
 WORKDIR /app
@@ -23,16 +23,17 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Migration + seed assets and the tools to run them (drizzle-kit/tsx live in
-# node_modules; migrations are applied by the entrypoint before the server starts).
+# Migration + seed assets
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/src/db ./src/db
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/package.json ./package.json
-COPY docker-entrypoint.sh ./docker-entrypoint.sh
-RUN chmod +x ./docker-entrypoint.sh
+
+# Entrypoint inline (avoids CRLF/path issues on Windows build hosts)
+RUN printf '#!/bin/sh\nset -e\necho "→ Applying migrations..."\nnode_modules/.bin/tsx src/db/migrate.ts\nif [ "$SEED_DEMO" = "true" ]; then\n  echo "→ Seeding demo host..."\n  node_modules/.bin/tsx src/db/seed.ts\nfi\necho "→ Starting server"\nexec node server.js\n' > /app/docker-entrypoint.sh \
+    && chmod +x /app/docker-entrypoint.sh
 
 USER app
 EXPOSE 3000
 ENV PORT=3000 HOSTNAME=0.0.0.0
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
