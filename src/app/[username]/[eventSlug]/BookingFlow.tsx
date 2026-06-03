@@ -43,6 +43,36 @@ export function BookingFlow({
   const [confirmed, setConfirmed] = useState<Slot | null>(null);
   const [pending, startTransition] = useTransition();
 
+  const slotsRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Notify parent of height changes for iframe embedding.
+  useEffect(() => {
+    const sendHeight = () =>
+      window.parent.postMessage(
+        { type: 'betterCal:resize', height: document.body.scrollHeight },
+        '*'
+      );
+    sendHeight();
+    const ro = new ResizeObserver(sendHeight);
+    ro.observe(document.body);
+    return () => ro.disconnect();
+  }, []);
+
+  // Scroll to slot list when a date is picked.
+  useEffect(() => {
+    if (!selectedDate) return;
+    slotsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.parent.postMessage({ type: 'betterCal:step', step: 'slots' }, '*');
+  }, [selectedDate]);
+
+  // Scroll to booking form when a slot is picked.
+  useEffect(() => {
+    if (!selectedSlot) return;
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.parent.postMessage({ type: 'betterCal:step', step: 'form' }, '*');
+  }, [selectedSlot]);
+
   const tzOptions = useMemo(
     () => Array.from(new Set([detected, ...COMMON_ZONES])),
     [detected]
@@ -172,6 +202,7 @@ export function BookingFlow({
   if (selectedSlot) {
     return (
       <form
+        ref={formRef}
         onSubmit={(e) => {
           e.preventDefault();
           submit();
@@ -285,7 +316,7 @@ export function BookingFlow({
           />
 
           {selectedDate && (
-            <div>
+            <div ref={slotsRef}>
               <h3 className="mb-2 text-sm font-medium text-neutral-900">
                 {DateTime.fromFormat(selectedDate, 'yyyy-MM-dd', { zone: tz }).toFormat(
                   'cccc, dd LLLL'
