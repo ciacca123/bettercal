@@ -16,17 +16,15 @@ services:
     mem_limit: 1g
 
   app:
-    # Immagine ARM64 pubblicata da GitHub Actions su GHCR
     image: ghcr.io/ciacca123/bettercal:latest
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/bettercal
-      SEED_DEMO: "true"
+    env_file:
+      - .env
     ports:
-      - "3001:3000"
+      - "3002:3000"
     mem_limit: 1g
 
 volumes:
