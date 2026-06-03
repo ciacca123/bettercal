@@ -120,6 +120,7 @@ END:VCALENDAR`;
       headers: {
         Authorization: this.getAuthHeader(),
         'Content-Type': 'application/xml',
+        'Depth': '1',
       },
       body: `<?xml version="1.0" encoding="utf-8" ?>
 <C:calendar-query xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
@@ -138,6 +139,8 @@ END:VCALENDAR`;
     });
 
     if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      console.error(`[caldav] calendar-query failed ${response.status}:`, body.slice(0, 300));
       throw new Error(`Calendar query failed: ${response.status}`);
     }
 
