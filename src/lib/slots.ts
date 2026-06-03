@@ -9,7 +9,7 @@ import {
 import { eq, and, inArray, gt, lt } from 'drizzle-orm';
 import { computeAvailableSlots } from '@/lib/availability/computeSlots';
 import { TimeInterval } from '@/lib/availability/types';
-import { mockCalendar } from '@/lib/mockCalendar';
+import { getCalendarProvider } from '@/lib/calendarProvider';
 
 export interface SlotsResult {
   slots: TimeInterval[];
@@ -37,8 +37,7 @@ export async function getSlots(
     where: eq(dateOverrides.userId, userId),
   });
 
-  // External busy (mock provider — empty by default).
-  const externalBusy = await mockCalendar.getBusy({
+  const externalBusy = await getCalendarProvider().getBusy({
     start: rangeStart,
     end: rangeEnd,
   });

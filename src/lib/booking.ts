@@ -3,7 +3,7 @@ import { bookings, eventTypes, connectedCalendars, users } from '@/db/schema';
 import { eq, and, inArray, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { getSlots } from './slots';
-import { mockCalendar } from './mockCalendar';
+import { getCalendarProvider } from './calendarProvider';
 import { sendBookingConfirmation, sendHostNotification } from './email';
 
 export interface CreateBookingInput {
@@ -110,7 +110,7 @@ export async function createBooking(
 
   // Write the calendar event outside the transaction.
   try {
-    const { externalId } = await mockCalendar.createEvent({
+    const { externalId } = await getCalendarProvider().createEvent({
       startUtc,
       endUtc,
       title: eventType.title,
