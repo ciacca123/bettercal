@@ -131,7 +131,7 @@ END:VCALENDAR`;
   <C:filter>
     <C:comp-filter name="VCALENDAR">
       <C:comp-filter name="VEVENT">
-        <C:time-range start="${(DateTime.fromISO(range.start).toUTC().toISO({ includeOffset: false }) ?? '').replace(/-|:/g, '')}Z" end="${(DateTime.fromISO(range.end).toUTC().toISO({ includeOffset: false }) ?? '').replace(/-|:/g, '')}Z"/>
+        <C:time-range start="${DateTime.fromISO(range.start).toUTC().toFormat("yyyyMMdd'T'HHmmss") + 'Z'}" end="${DateTime.fromISO(range.end).toUTC().toFormat("yyyyMMdd'T'HHmmss") + 'Z'}"/>
       </C:comp-filter>
     </C:comp-filter>
   </C:filter>
