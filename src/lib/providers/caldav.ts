@@ -221,34 +221,25 @@ END:VCALENDAR`;
 
   async createEvent(input: CreateEventInput): Promise<{ externalId: string }> {
     const uid = `${Date.now()}-${Math.random().toString(36).substring(7)}@bettercal`;
+    const toIcal = (iso: string) =>
+      DateTime.fromISO(iso).toUTC().toFormat("yyyyMMdd'T'HHmmss") + 'Z';
 
-    const vevent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//BetterCal//EN
-BEGIN:VEVENT
-UID:${uid}
-DTSTAMP:${DateTime.utc().toISO()}
-DTSTART:${input.startUtc}
-DTEND:${input.endUtc}
-SUMMARY:${this.escapeICalText(input.title)}
-DESCRIPTION:${this.escapeICalText(input.description || '')}
-ORGANIZER;CN="${this.escapeICalText(input.attendee.name)}":mailto:${input.attendee.email}
-ATTENDEE;CN="${this.escapeICalText(input.attendee.name)}":mailto:${input.attendee.email}
-END:VEVENT
-END:VCALENDAR`;
+    const vevent = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//BetterCal//EN\r\nBEGIN:VEVENT\r\nUID:${uid}\r\nDTSTAMP:${toIcal(new Date().toISOString())}\r\nDTSTART:${toIcal(input.startUtc)}\r\nDTEND:${toIcal(input.endUtc)}\r\nSUMMARY:${this.escapeICalText(input.title)}\r\nDESCRIPTION:${this.escapeICalText(input.description || '')}\r\nORGANIZER;CN="${this.escapeICalText(input.attendee.name)}":mailto:${input.attendee.email}\r\nATTENDEE;CN="${this.escapeICalText(input.attendee.name)}":mailto:${input.attendee.email}\r\nEND:VEVENT\r\nEND:VCALENDAR`;
 
-    const eventPath = `${this.writeCalendarUrl}/${uid}.ics`;
+    const eventPath = `${this.writeCalendarUrl}${uid}.ics`;
 
     const response = await this.httpClient(eventPath, {
       method: 'PUT',
       headers: {
         Authorization: this.getAuthHeader(),
-        'Content-Type': 'text/calendar',
+        'Content-Type': 'text/calendar; charset=utf-8',
       },
       body: vevent,
     });
 
     if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      console.error(`[caldav] createEvent failed ${response.status}:`, body.slice(0, 300));
       throw new Error(`Event creation failed: ${response.status}`);
     }
 
