@@ -9,6 +9,7 @@ const links = [
   { href: '/dashboard/availability', label: 'Availability' },
   { href: '/dashboard/calendars', label: 'Calendars' },
   { href: '/dashboard/bookings', label: 'Bookings' },
+  { href: '/dashboard/appearance', label: 'Appearance' },
 ];
 
 export default async function DashboardLayout({

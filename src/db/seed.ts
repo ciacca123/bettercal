@@ -9,6 +9,7 @@ import {
   connectedCalendars,
   eventTypes,
   weeklyAvailability,
+  hostAppearance,
 } from './schema';
 
 async function seed() {
@@ -53,6 +54,11 @@ async function seed() {
       .insert(weeklyAvailability)
       .values({ userId: user.id, weekday, startTime: '09:00', endTime: '17:00' });
   }
+
+  await db.insert(hostAppearance).values({
+    userId: user.id,
+    themeMode: 'auto',
+  });
 
   console.log('Seeded demo host → /demo/intro');
 }

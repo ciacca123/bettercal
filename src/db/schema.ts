@@ -129,6 +129,30 @@ export const bookings = pgTable(
   ]
 );
 
+// Host appearance / branding
+export const hostAppearance = pgTable('host_appearance', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  avatarUrl: text('avatar_url'),
+  brandName: text('brand_name'),
+  accentColor: text('accent_color'),   // hex e.g. "#3b82f6", null = default
+  bgColor: text('bg_color'),           // card background, null = white
+  textColor: text('text_color'),       // primary text, null = default
+  fontFamily: text('font_family'),     // CSS font-family string, null = system
+  showDuration: boolean('show_duration').notNull().default(true),
+  showLocation: boolean('show_location').notNull().default(true),
+  showTimezone: boolean('show_timezone').notNull().default(true),
+  durationLabel: text('duration_label'),  // null = "minutes"
+  timezoneLabel: text('timezone_label'),  // null = "Host timezone:"
+  iconStyle: text('icon_style', { enum: ['emoji', 'none'] }).notNull().default('emoji'),
+  themeMode: text('theme_mode', { enum: ['light', 'dark', 'auto'] }).notNull().default('light'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
 export type User = typeof users.$inferSelect;
 export type EventType = typeof eventTypes.$inferSelect;
 export type Booking = typeof bookings.$inferSelect;
@@ -136,3 +160,4 @@ export type NewBooking = typeof bookings.$inferInsert;
 export type WeeklyAvailability = typeof weeklyAvailability.$inferSelect;
 export type DateOverride = typeof dateOverrides.$inferSelect;
 export type ConnectedCalendar = typeof connectedCalendars.$inferSelect;
+export type HostAppearance = typeof hostAppearance.$inferSelect;
