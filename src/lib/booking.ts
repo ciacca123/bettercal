@@ -4,6 +4,7 @@ import { eq, and, inArray, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { getSlots } from './slots';
 import { getCalendarProvider } from './calendarProvider';
+import { invalidateCalendarCache } from './calendarCache';
 import { sendBookingConfirmation, sendHostNotification } from './email';
 
 export interface CreateBookingInput {
@@ -123,6 +124,7 @@ export async function createBooking(
       .update(bookings)
       .set({ status: 'confirmed', externalEventId: externalId, updatedAt: new Date() })
       .where(eq(bookings.id, bookingId));
+    invalidateCalendarCache(input.userId);
   } catch (err) {
     await db
       .update(bookings)

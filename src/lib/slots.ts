@@ -10,6 +10,7 @@ import { eq, and, inArray, gt, lt } from 'drizzle-orm';
 import { computeAvailableSlots } from '@/lib/availability/computeSlots';
 import { TimeInterval } from '@/lib/availability/types';
 import { getCalendarProvider } from '@/lib/calendarProvider';
+import { getCachedBusy } from '@/lib/calendarCache';
 
 export interface SlotsResult {
   slots: TimeInterval[];
@@ -39,10 +40,10 @@ export async function getSlots(
 
   let externalBusy: TimeInterval[] = [];
   try {
-    externalBusy = await getCalendarProvider().getBusy({
-      start: rangeStart,
-      end: rangeEnd,
-    });
+    const cacheKey = `${userId}:${rangeStart}:${rangeEnd}`;
+    externalBusy = await getCachedBusy(cacheKey, () =>
+      getCalendarProvider().getBusy({ start: rangeStart, end: rangeEnd })
+    );
   } catch (err) {
     console.error('[calendar] getBusy failed, proceeding without external busy:', err);
   }
