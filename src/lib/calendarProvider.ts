@@ -7,6 +7,7 @@ export function getCalendarProvider(): CalendarProvider {
 
   if (CALDAV_URL && CALDAV_USERNAME && CALDAV_PASSWORD && CALDAV_CALENDAR) {
     const calendarUrl = `${CALDAV_URL}/calendars/${CALDAV_USERNAME}/${CALDAV_CALENDAR}`;
+    console.log('[calendar] CalDAV provider active, calendar URL:', calendarUrl);
     return new CalDAVAdapter(
       CALDAV_URL,
       CALDAV_USERNAME,

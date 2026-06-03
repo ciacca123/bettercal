@@ -37,10 +37,15 @@ export async function getSlots(
     where: eq(dateOverrides.userId, userId),
   });
 
-  const externalBusy = await getCalendarProvider().getBusy({
-    start: rangeStart,
-    end: rangeEnd,
-  });
+  let externalBusy: TimeInterval[] = [];
+  try {
+    externalBusy = await getCalendarProvider().getBusy({
+      start: rangeStart,
+      end: rangeEnd,
+    });
+  } catch (err) {
+    console.error('[calendar] getBusy failed, proceeding without external busy:', err);
+  }
 
   // Existing active bookings (any of this host's event types) also block time,
   // so a booked slot never reappears as available.
