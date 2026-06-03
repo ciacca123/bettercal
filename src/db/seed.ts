@@ -22,7 +22,7 @@ async function seed() {
     .insert(users)
     .values({
       username: 'demo',
-      email: 'demo@bettercal.local',
+      email: 'me@corradofriscia.top',
       name: 'Demo Host',
       timeZone: 'Europe/Rome',
     })
